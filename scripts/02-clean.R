@@ -1,12 +1,9 @@
-# Load Packages
-library(here)
-library(tidyverse)
-library(janitor)
-
-# Read the files
+# Create folder to process files
+message("Create the working directory for cleaned data.")
+dir.create(here("data", step2), showWarnings = FALSE)
 
 # Identify all the data available
-year <- list.files(here("data", "processed"))
+year <- list.files(here("data", step1))
 
 # Print the years available
 message("The processed data available for the following years:")
@@ -15,33 +12,35 @@ lapply(year, paste)
 ## Loop through all the years
 for (y in year) {
     # Sections of data available 
-    section <- list.files(here("data", "processed", y))
+    section <- list.files(here("data", step1, y))
     # Print the sections
     message("In ", y, ", the data available for the following sections:")
     lapply(section, print)
+    # Create directory to save processed files
+    dir.create(here("data", step2, y), showWarnings = FALSE)
     for (s in section) {
-        if (s == "budgetary_scheme_expenditure") {
+        if (s == section1) {
             message("- Cleaning the '", s, "' files.")
-            # Read the Grant Master File
-            grant_master <- read_csv(here("data", "processed", y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            # Read the Processed Files
+            grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
             # Clean Columns Names
-            grant_master <- grant_master %>% clean_names()
-            # Read the Schemes Master File
-            scheme_master <- read_csv(here("data", "processed", y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
-            # Clean Columns Names
-            scheme_master <- scheme_master %>% clean_names()
+            grant_master <- grant_master %>% 
+                clean_names()                                           # Clean columns names
+            scheme_master <- scheme_master %>% 
+                clean_names()                                           # Clean columns names
             # Create directory to save processed files
-            dir.create(here("data", "cleaned", y), showWarnings = FALSE)
-            dir.create(here("data", "cleaned", y, s), showWarnings = FALSE)
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
             # Store Cleaned Files
-            write_csv(grant_master, here("data", "cleaned", y, s, "grant_master.csv"))
-            write_csv(scheme_master, here("data", "cleaned", y, s, "scheme_master.csv"))
-        } else if (s == "department_wise_expenditure") {
+            message(">> Storing the cleaned files.")
+            write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
+            write_csv(scheme_master, here("data", step2, y, s, "scheme_master.csv"))
+        } else if (s == section2) {
             message("- Cleaning the '", s, "' files.")
             # Read the Grant Master File
-            grant_master <- read_csv(here("data", "processed", y, s, "grant_master.csv"), col_types = cols(.default = "c"))
-            scheme_master <- read_csv(here("data", "processed", y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
-            object_master <- read_csv(here("data", "processed", y, s, "object_master.csv"), col_types = cols(.default = "c"))
+            grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
+            object_master <- read_csv(here("data", step1, y, s, "object_master.csv"), col_types = cols(.default = "c"))
             # Clean the datasets
             grant_master <- grant_master %>% 
                 clean_names() %>%                                       # Clean columns names
@@ -55,38 +54,108 @@ for (y in year) {
                 clean_names() %>%                                       # Clean columns names
                 filter(!is.na(object))                                  # Remove Sum rows (NA values)
             # Create directory to save processed files
-            dir.create(here("data", "cleaned", y), showWarnings = FALSE)
-            dir.create(here("data", "cleaned", y, s), showWarnings = FALSE)
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
             # Store Cleaned Files
-            write_csv(grant_master, here("data", "cleaned", y, s, "grant_master.csv"))
-            write_csv(scheme_master, here("data", "cleaned", y, s, "scheme_master.csv"))
-            write_csv(object_master, here("data", "cleaned", y, s, "object_master.csv"))
-        } else if (s == "division_wise_expenditure") {
+            message(">> Storing the cleaned files.")
+            write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
+            write_csv(scheme_master, here("data", step2, y, s, "scheme_master.csv"))
+            write_csv(object_master, here("data", step2, y, s, "object_master.csv"))
+        } else if (s == section3) {
             message("- Cleaning the '", s, "' files.")
             # Read the Grant Master File
-            division_master <- read_csv(here("data", "processed", y, s, "division_master.csv"), col_types = cols(.default = "c"))
+            division_master <- read_csv(here("data", step1, y, s, "division_master.csv"), col_types = cols(.default = "c"))
             # Clean the datasets
             division_master <- division_master %>% 
                 clean_names() %>%                                       # Clean columns names
                 fill(division) %>%                                      # Impute empty Grant values
                 filter(division != "TOTAL OF DIVISION:")                # Remove Sum rows
             # Create directory to save processed files
-            dir.create(here("data", "cleaned", y), showWarnings = FALSE)
-            dir.create(here("data", "cleaned", y, s), showWarnings = FALSE)
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
             # Store Cleaned Files
-            write_csv(division_master, here("data", "cleaned", y, s, "division_master.csv"))
-        } else if (s == "grant_major_head_wise_expenditure") {
+            message(">> Storing the cleaned files.")
+            write_csv(division_master, here("data", step2, y, s, "division_master.csv"))
+        } else if (s == section4) {
             message("- Cleaning the '", s, "' files.")
             # Read the Grant Master File
-            grant_master <- read_csv(here("data", "processed", y, s, "grant_master.csv"), col_types = cols(.default = "c"))
-            major_head_master <- read_csv(here("data", "processed", y, s, "major_head_master.csv"), col_types = cols(.default = "c"))
+            grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            major_head_master <- read_csv(here("data", step1, y, s, "major_head_master.csv"), col_types = cols(.default = "c"))
+            # Clean the datasets
+            grant_master <- grant_master %>% 
+                clean_names()                                           # Clean columns names
+            major_head_master <- major_head_master %>%
+                clean_names() %>%                                       # Clean columns names
+                filter(grepl("\\d{4}=", major_head))                    # Filter out total rows
+            # Create directory to save processed files
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
+            # Store Cleaned Files
+            message(">> Storing the cleaned files.")
+            write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
+            write_csv(major_head_master, here("data", step2, y, s, "major_head_master.csv"))
+        }  else if (s == section5) {
+            message("- Cleaning the '", s, "' files.")
+            # Read the Grant Master File
+            grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            # Clean the datasets
+            grant_master <- grant_master %>% 
+                clean_names() %>%                                       # Clean columns names
+                filter(grant_no != "TOTAL") %>%                         # Filter out total rows
+                select(-temp1, -temp2) 
+            # Create directory to save processed files
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
+            # Store Cleaned Files
+            message(">> Storing the cleaned files.")
+            write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
+        }  else if (s == section6) {
+            message("- Cleaning the '", s, "' files.")
+            # Read the data files
+            grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
+            scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
+            # ----- treasury_master <- read_csv(here("data", step1, y, s, "treasury_master.csv"), col_types = cols(.default = "c"))
+            # ----- voucher_master <- read_csv(here("data", step1, y, s, "voucher_master.csv"), col_types = cols(.default = "c"))
+            # Clean the datasets
+            grant_master <- grant_master %>% 
+                clean_names()                                           # Clean columns names
+            scheme_master <- scheme_master %>% 
+                clean_names() %>%                                       # Clean columns names
+                fill(scheme_code) %>%                                   # Impute empty values
+                filter(!grepl("TOTAL::", scheme_code))
+            # treasury_master <- treasury_master %>% 
+            #     clean_names()                                           # Clean columns names
+            # voucher_master <- voucher_master %>% 
+            #     clean_names()                                           # Clean columns names
+            # Create directory to save processed files
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
+            # Store Cleaned Files
+            message(">> Storing the cleaned files.")
+            write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
+            write_csv(scheme_master, here("data", step2, y, s, "scheme_master.csv"))
+            # ----- write_csv(treasury_master, here("data", step2, y, s, "treasury_master.csv"))
+            # ----- write_csv(voucher_master, here("data", step2, y, s, "voucher_master.csv"))
+        }  else if (s == section7) {
+            message("- Cleaning the '", s, "' files.")
+            # Read the Grant Master File
+            central_scheme_master <- read_csv(here("data", step1, y, s, "central_scheme_master.csv"), col_types = cols(.default = "c"))
+            scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
+            # Clean the datasets
+            central_scheme_master <- central_scheme_master %>% 
+                clean_names() %>%
+                filter(central_scheme_code != "Total:")                 # Filter out total rows
+            scheme_master <- scheme_master %>% 
+                clean_names() %>%
+                filter(scheme_scheme_code != "Total:")                  # Filter out total rows
+            # Create directory to save processed files
+            dir.create(here("data", step2, y, s), showWarnings = FALSE)
+            # Store Cleaned Files
+            message(">> Storing the cleaned files.")
+            write_csv(central_scheme_master, here("data", step2, y, s, "central_scheme_master.csv"))
+            write_csv(scheme_master, here("data", step2, y, s, "scheme_master.csv"))
         } else print("Skip")
     }
 }
 
 # Corrections
-# 1. Budgetary Schemes - Fiscal Year - main_file.csv
-# 2. Department Wise - Fiscal Year - main_file.csv
-# 3. Department Wise - Object - Object Code
-# 4. Department Wise - Object - Hierarchy
-# 4. Department Wise - Object - Hierarchy
+# 1. All - Fiscal Year - main_file.csv
+# 2. Department Wise - Object - Object Code
+# 3. Department Wise - Object - Hierarchy
+# 4. PFMS Details - Schemes - Grant Code
+# 5. Grant Wise - Capital / Revenue - Sept.
