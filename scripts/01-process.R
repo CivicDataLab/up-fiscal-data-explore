@@ -21,13 +21,13 @@ for (y in year) {
     for (s in section) {
         if (s == section1) {
             message("- Processing the '", s, "' files.")
-            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             # Read the main file
             message(">> Creating the master files.")
             grant_master <- read_csv(here("data", step0, y, s, "main_file.csv"), col_types = cols(.default = "c"))
             # Setup empty tibble to save schemes data
             scheme_master <- tribble()
             # Loop through different grants for schemes data
+            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (g in grant) {
                 file <- read_csv(here("data", step0, y, s, g, paste0(g, "_prep.csv")), col_types = cols(.default = "c"))
                 scheme_master <- bind_rows(scheme_master, file)
@@ -40,7 +40,6 @@ for (y in year) {
             write_csv(scheme_master, here("data", step1, y, s, "scheme_master.csv"))
         } else if (s == section2) {
             message("- Processing the '", s, "' files.")
-            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             # Read the main file
             message(">> Creating the master files.")
             grant_master <- suppressMessages(read_csv(here("data", step0, y, s, "main_file.csv"), col_types = cols(.default = "c")))
@@ -48,9 +47,11 @@ for (y in year) {
             scheme_master <- tribble()
             object_master <- tribble()
             # Loop through different grants for schemes data
+            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (g in grant) {
                 file <- read_csv(here("data", step0, y, s, g, paste0(g, "_prep.csv")), col_types = cols(.default = "c"))
                 scheme_master <- bind_rows(scheme_master, file)
+                # Loop through different grants for object data
                 object <- grep(list.files(here("data", step0, y, s, g)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
                 for (o in object) {
                     file <- read_csv(here("data", step0, y, s, g, o, paste0(o, "_prep.csv")), col_types = cols(.default = "c"))
@@ -76,13 +77,13 @@ for (y in year) {
             write_csv(division_master, here("data", step1, y, s, "division_master.csv"))
         } else if (s == section4) {
             message("- Processing the '", s, "' files.")
-            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             # Read the main file
             message(">> Creating the master files.")
             grant_master <- suppressMessages(read_csv(here("data", step0, y, s, "main_file.csv"), col_types = cols(.default = "c")))
             # Setup empty tibble to save schemes data
             major_head_master <- tribble()
             # Loop through different grants for schemes data
+            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (g in grant) {
                 file <- read_csv(here("data", step0, y, s, g, paste0(g, "_prep.csv")), col_types = cols(.default = "c"))
                 major_head_master <- bind_rows(major_head_master, file)
@@ -105,7 +106,6 @@ for (y in year) {
             write_csv(grant_master, here("data", step1, y, s, "grant_master.csv"))
         } else if (s == section6) {
             message("- Processing the '", s, "' files.")
-            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             # Read the main file
             message(">> Creating the master files.")
             grant_master <- suppressMessages(read_csv(here("data", step0, y, s, "main_file.csv"), col_types = cols(.default = "c")))
@@ -116,14 +116,15 @@ for (y in year) {
             treasury_master <- tribble()
             voucher_master <- tribble()
             # Loop through different grants for schemes data
+            grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (g in grant) {
                 file <- read_csv(here("data", step0, y, s, g, paste0(g, "_prep.csv")), col_types = cols(.default = "c"))
                 scheme_master <- bind_rows(scheme_master, file)
                 scheme <- grep(list.files(here("data", step0, y, s, g)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
                 # for (c in scheme) {
-                #     if_else(file_exists(here("data", step0, y, s, g, c, paste0(t, "_prep.csv"))), 
+                #     if_else(file_exists(here("data", step0, y, s, g, c, paste0(c, "_prep.csv"))),
                 #             file <- read_csv(here("data", step0, y, s, g, c, paste0(c, "_prep.csv")), col_types = cols(.default = "c")),
-                #             file <- tribbe()
+                #             file <- file[FALSE, ]
                 #     )
                 #     treasury_master <- bind_rows(treasury_master, file)
                 #     treasury <- grep(list.files(here("data", step0, y, s, g, c)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
@@ -145,13 +146,13 @@ for (y in year) {
             # ----- write_csv(voucher_master, here("data", step1, y, s, "voucher_master.csv"))
         } else if (s == section7) {
             message("- Processing the '", s, "' files.")
-            scheme <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             # Read the main file
             message(">> Creating the master files.")
             central_scheme_master <- suppressMessages(read_csv(here("data", step0, y, s, "main_file.csv"), col_types = cols(.default = "c")))
             # Setup empty tibble to save schemes data
             scheme_master <- tribble()
             # Loop through different grants for schemes data
+            scheme <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (c in scheme) {
                 file <- read_csv(here("data", step0, y, s, c, paste0(c, "_prep.csv")), col_types = cols(.default = "c"))
                 scheme_master <- bind_rows(scheme_master, file)

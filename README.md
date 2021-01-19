@@ -18,7 +18,7 @@ This repository is intended for scripts and findings related to the exploration 
 
 This repository is an extension on the project to analyse and explore the Uttar Pradesh fiscal data extracted from the [Koshvani](http://koshvani.up.nic.in/) platform. The primary focus of the project is education related spending analysis.
 
-Check out the linked repositories for more details around [data scoping]((https://github.com/CivicDataLab/up-fiscal-data) and [data mining](https://github.com/CivicDataLab/up-fiscal-data).
+Check out the linked repositories for more details around [data scoping](https://github.com/CivicDataLab/up-fiscal-data) and [data mining](https://github.com/CivicDataLab/up-fiscal-data).
 
 ## Methodology
 
@@ -30,6 +30,12 @@ Following activities are conducted in the repository.
 - Explore and visualise data to identify key focus areas
 
 The `tidyverse` and supporting packages from `R` are employed to conduct this exercise.
+
+## Getting Started
+
+Guidelines to execute the script.
+
+`<< TBD >>`
 
 ## Contributions
 
