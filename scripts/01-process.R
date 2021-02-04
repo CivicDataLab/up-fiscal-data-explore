@@ -9,11 +9,11 @@ year <- list.files(here("data", step0))
 message("The data available for the following years:")
 lapply(year, paste)
 
-## Loop through all the years
+## Loop through all the years to process data
 for (y in year) {
-    # Sections of data available 
+    # Sections of Koshvani data available 
     section <- list.files(here("data", step0, y))
-    # Print the sections
+    # Print the sections names
     message("In ", y, ", the data available for the following sections:")
     lapply(section, print)
     # Create directory to save processed files
@@ -115,26 +115,27 @@ for (y in year) {
             scheme_master <- tribble()
             treasury_master <- tribble()
             voucher_master <- tribble()
-            # Loop through different grants for schemes data
+            # Loop through different grants for schemes, treasury and voucher data
             grant <- grep(list.files(here("data", step0, y, s)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
             for (g in grant) {
                 file <- read_csv(here("data", step0, y, s, g, paste0(g, "_prep.csv")), col_types = cols(.default = "c"))
                 scheme_master <- bind_rows(scheme_master, file)
                 scheme <- grep(list.files(here("data", step0, y, s, g)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
-                # for (c in scheme) {
-                #     if_else(file_exists(here("data", step0, y, s, g, c, paste0(c, "_prep.csv"))),
-                #             file <- read_csv(here("data", step0, y, s, g, c, paste0(c, "_prep.csv")), col_types = cols(.default = "c")),
-                #             file <- file[FALSE, ]
-                #     )
-                #     treasury_master <- bind_rows(treasury_master, file)
-                #     treasury <- grep(list.files(here("data", step0, y, s, g, c)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
-                    # for (t in treasury) {
-                    #     if_else(file_exists(here("data", step0, y, s, g, c, t, paste0(t, "_prep.csv"))), 
-                    #             file <- read_csv(here("data", step0, y, s, g, c, t, paste0(t, "_prep.csv")), col_types = cols(.default = "c")),
-                    #             file <- tribble())
-                    #     voucher_master <- bind_rows(voucher_master, file)
-                    # }
-                # }
+                for (c in scheme) {
+                    ifelse(file_exists(here("data", step0, y, s, g, c, paste0(c, "_prep.csv"))),
+                            file <- read_csv(here("data", step0, y, s, g, c, paste0(c, "_prep.csv")), col_types = cols(.default = "c")),
+                            file <- tribble()
+                    )
+                    treasury_master <- bind_rows(treasury_master, file)
+                    treasury <- grep(list.files(here("data", step0, y, s, g, c)), pattern = "\\..{3}$", invert = TRUE, value = TRUE)
+                    for (t in treasury) {
+                        ifelse(file_exists(here("data", step0, y, s, g, c, t, paste0(t, "_prep.csv"))),
+                                file <- read_csv(here("data", step0, y, s, g, c, t, paste0(t, "_prep.csv")), col_types = cols(.default = "c")),
+                                file <- tribble()
+                        )
+                        voucher_master <- bind_rows(voucher_master, file)
+                    }
+                }
             }
             # Create directory to save processed files
             dir.create(here("data", step1, y, s), showWarnings = FALSE)
@@ -142,8 +143,8 @@ for (y in year) {
             message(">> Storing the processed files.")
             write_csv(grant_master, here("data", step1, y, s, "grant_master.csv"))
             write_csv(scheme_master, here("data", step1, y, s, "scheme_master.csv"))
-            # ----- write_csv(treasury_master, here("data", step1, y, s, "treasury_master.csv"))
-            # ----- write_csv(voucher_master, here("data", step1, y, s, "voucher_master.csv"))
+            write_csv(treasury_master, here("data", step1, y, s, "treasury_master.csv"))
+            write_csv(voucher_master, here("data", step1, y, s, "voucher_master.csv"))
         } else if (s == section7) {
             message("- Processing the '", s, "' files.")
             # Read the main file

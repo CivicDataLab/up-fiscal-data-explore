@@ -110,27 +110,29 @@ for (y in year) {
             # Read the data files
             grant_master <- read_csv(here("data", step1, y, s, "grant_master.csv"), col_types = cols(.default = "c"))
             scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
-            # ----- treasury_master <- read_csv(here("data", step1, y, s, "treasury_master.csv"), col_types = cols(.default = "c"))
-            # ----- voucher_master <- read_csv(here("data", step1, y, s, "voucher_master.csv"), col_types = cols(.default = "c"))
+            treasury_master <- read_csv(here("data", step1, y, s, "treasury_master.csv"), col_types = cols(.default = "c"))
+            voucher_master <- read_csv(here("data", step1, y, s, "voucher_master.csv"), col_types = cols(.default = "c"))
             # Clean the datasets
             grant_master <- grant_master %>% 
                 clean_names()                                           # Clean columns names
             scheme_master <- scheme_master %>% 
                 clean_names() %>%                                       # Clean columns names
                 fill(scheme_code) %>%                                   # Impute empty values
-                filter(!grepl("TOTAL::", scheme_code))
-            # treasury_master <- treasury_master %>% 
-            #     clean_names()                                           # Clean columns names
-            # voucher_master <- voucher_master %>% 
-            #     clean_names()                                           # Clean columns names
+                filter(!grepl("TOTAL::", scheme_code))                  # Filter out total rows
+            treasury_master <- treasury_master %>% 
+                clean_names() %>%                                       # Clean columns names
+                fill(treasury) %>%                                      # Impute empty values
+                filter(treasury != "Total:")                            # Filter out total rows
+            voucher_master <- voucher_master %>%
+                clean_names()                                           # Clean columns names
             # Create directory to save processed files
             dir.create(here("data", step2, y, s), showWarnings = FALSE)
             # Store Cleaned Files
             message(">> Storing the cleaned files.")
             write_csv(grant_master, here("data", step2, y, s, "grant_master.csv"))
             write_csv(scheme_master, here("data", step2, y, s, "scheme_master.csv"))
-            # ----- write_csv(treasury_master, here("data", step2, y, s, "treasury_master.csv"))
-            # ----- write_csv(voucher_master, here("data", step2, y, s, "voucher_master.csv"))
+            write_csv(treasury_master, here("data", step2, y, s, "treasury_master.csv"))
+            write_csv(voucher_master, here("data", step2, y, s, "voucher_master.csv"))
         }  else if (s == section7) {
             message("- Cleaning the '", s, "' files.")
             # Read the Grant Master File
@@ -138,10 +140,10 @@ for (y in year) {
             scheme_master <- read_csv(here("data", step1, y, s, "scheme_master.csv"), col_types = cols(.default = "c"))
             # Clean the datasets
             central_scheme_master <- central_scheme_master %>% 
-                clean_names() %>%
+                clean_names() %>%                                       # Clean columns names
                 filter(central_scheme_code != "Total:")                 # Filter out total rows
             scheme_master <- scheme_master %>% 
-                clean_names() %>%
+                clean_names() %>%                                       # Clean columns names
                 filter(scheme_scheme_code != "Total:")                  # Filter out total rows
             # Create directory to save processed files
             dir.create(here("data", step2, y, s), showWarnings = FALSE)
@@ -152,10 +154,3 @@ for (y in year) {
         } else print("Skip")
     }
 }
-
-# Corrections
-# 1. All - Fiscal Year - main_file.csv
-# 2. Department Wise - Object - Object Code
-# 3. Department Wise - Object - Hierarchy
-# 4. PFMS Details - Schemes - Grant Code
-# 5. Grant Wise - Capital / Revenue - Sept.
