@@ -24,10 +24,10 @@ Check out the linked repositories for more details around [data scoping](https:/
 
 Following activities are conducted in the repository.
 
-- Pre-process the data to combining various files extracted
-- Clean to the data to normalize to begin analysis
-- Verify the accuracy of data extracted through automated checks
-- Explore and visualise data to identify key focus areas
+-   Pre-process the data to combining various files extracted
+-   Clean to the data to normalize to begin analysis
+-   Verify the accuracy of data extracted through automated checks
+-   Explore and visualise data to identify key focus areas
 
 The `tidyverse` and supporting packages from `R` are employed to conduct this exercise.
 
@@ -35,7 +35,22 @@ The `tidyverse` and supporting packages from `R` are employed to conduct this ex
 
 Guidelines to execute the script.
 
-`<< TBD >>`
+**Clone the Repository**
+
+```
+git clone https://github.com/CivicDataLab/up-fiscal-data-explore.git
+```
+
+#### Download the Data
+
+```
+<< TBD >>
+```
+
+#### Run the master script
+
+- Open the `up-fiscal-data-explore.Rproj`
+- Source the `scripts/00-master.R` script
 
 ## Contributions
 
@@ -43,14 +58,12 @@ You can refer to the [contributing guidelines](https://github.com/CivicDataLab/u
 
 ## Repo Structure
 
-```
-root
-└── contribute/
-└── data/
-└── scripts/
-└── LICENSE.md
-└── README.md
-```
+    root
+    └── contribute/
+    └── data/
+    └── scripts/
+    └── LICENSE.md
+    └── README.md
 
 ## License
 
