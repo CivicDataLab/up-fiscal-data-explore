@@ -38,4 +38,4 @@ message(">> Combine the transformed data to explore.")
 source(here("scripts", "04-combine.R"), echo = TRUE)
 
 # Clear Environment
-# rm(list = ls())
+rm(list = ls())
