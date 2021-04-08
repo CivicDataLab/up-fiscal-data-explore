@@ -12,6 +12,7 @@ step1 <- "01-processed"
 step2 <- "02-cleaned"
 step3 <- "03-transformed"
 step4 <- "04-combined"
+step5 <- "05-translated"
 
 # Set Data Section Variables
 message("Setup all sections of data processed.")

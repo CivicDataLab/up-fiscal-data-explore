@@ -1,0 +1,360 @@
+---
+title: "Strengthening Financial Accountability towards Girl Education"
+subtitle: "Analysis of the Uttar Pradesh Fiscal Data"  
+author: 
+  - "Arpit Arora, CivicDataLab"
+date: '`r Sys.Date()`'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+---
+
+```{r setup, include = FALSE}
+# Environment Setup
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  fig.width = 12, fig.height = 6, fig.retina = 3,
+  out.width = "100%",
+  cache = FALSE,
+  echo = FALSE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.show = TRUE,
+  hiline = TRUE
+)
+
+# Project Setup
+# Load Packages
+library(here)               # Dynamic Path Tracing
+library(tidyverse)          # Data Processing 
+library(DT)                 # File System Operations
+library(scales)             # Format numbers on charts
+library(plotly)             # Interactive visualisations
+
+# Set Processing Step Variables
+message("Setup all stages of the process.")
+
+step0 <- "00-raw"
+step1 <- "01-processed"
+step2 <- "02-cleaned"
+step3 <- "03-transformed"
+step4 <- "04-combined"
+step5 <- "05-translated"
+
+# Set Data Section Variables
+message("Setup all sections of data processed.")
+
+section1 <- "budgetary_scheme_expenditure"
+section2 <- "department_wise_expenditure"
+section3 <- "division_wise_expenditure"
+section4 <- "grant_major_head_wise_expenditure"
+section5 <- "grant_wise_capital_revenue_expenditure"
+section6 <- "grant_wise_expenditure"
+section7 <- "pfms_expenditure_detail"
+
+# Data 
+# Create folder to process files
+dir.create(here("data", step4), showWarnings = FALSE)
+
+# Grant Major Head
+grant_major_head_master <- read_csv(here("data", step3, section4, 
+                                         "grant_major_head_master.csv"), 
+                                    col_types = cols(.default = "c"))
+
+```
+
+```{r xaringan-themer, include = FALSE, warning = FALSE}
+library(xaringanthemer)
+style_mono_accent(base_color = "#43418A")
+```
+
+# Background
+
+[CivicDataLab](https://civicdatalab.in/) (CDL) is partnering with [HAQ: Centre for Child Rights](https://www.haqcrc.org/) (HAQ: CRC) in analysing Uttar Pradesh Fiscal Data to strengthen the financial accountability towards Girl Education in the state.
+
+The **project’s objective** is to examine and highlight the trend of financing for child education with specific focus on girls’ education in the state of Uttar Pradesh. The project also intends to build the collective voices of local CSOs to be able to advocate for greater budget transparency in allocation and expenditure for education related programmes by putting the budget data in public domain in simplified forms. The outcomes of the proposed project is likely to improve the implementation of education related schemes in the selected states thereby benefiting all the children who are part of the schooling system.
+
+To achieve the same, we are procuring data from the [Koshvani](http://koshvani.up.nic.in/) platform, **FY 2017-18 onwards**. Koshvani is Uttar Pradesh’s financial activities digital platform containing up to date information about the state budget and expenditure down to a DDO level. We are using this data to create a composite definition of education expenditure for the state of Uttar Pradesh and track the progress over the years. You can follow our progress on the work here.
+
+---
+
+class: inverse center middle
+
+# Uttar Pradesh Fiscal Data Overview
+
+---
+
+# Fiscal Data Overview
+
+```{r}
+## Create the plot data
+major_head_yearly <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.double(total_budget_provision),
+           progressive_allotment = as.double(progressive_allotment),
+           actual_expenditure = as.double(total_expenditure_in_month)) %>%
+    filter(dep_name != "-") %>%
+    group_by(fiscal_year) %>%
+    summarise(`Total Budget` = sum(total_budget_provision),
+              `Total Allotment` = sum(progressive_allotment),
+              `Total Expenditure` = sum(actual_expenditure)) %>%
+    pivot_longer(cols = starts_with("Total"), names_to = "metric", values_to = "value") %>%
+    mutate(metric = as_factor(metric), 
+           `Fiscal Year` = fiscal_year)
+
+## Create the dynamic plot
+ggplotly(ggplot(major_head_yearly, aes(x = `Fiscal Year`, y = value, fill = metric)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(title = "Uttar Pradesh Yearly Fiscal Trends", x = "", y = "") +
+    theme_minimal() + theme(axis.text.y = element_blank(), legend.position = "bottom")) %>%
+    layout(legend = list(
+        orientation = "h",
+        x = 0, y = -0.15
+        )
+    )
+```
+
+---
+
+# Findings (1)
+
+#### Observations made in the overall state budget trends in **FY 2020-21** over last 4 FYs.
+
+-----
+
+- Total Budgetary Provisions for **FY 2020-21** `₹5,444,542 crore` was a `3.36%` increase over the previous FY.
+
+- The total allotment against the Budgeted Provisions is `~50-60%` of the amount, but during the pandemic year of **FY 2020-21** the allotments dropped to `48.14%`
+
+- Total Expenditure at the end of any FY ranges between `~115-125%` of allotments made over the year.
+
+-----
+
+> **Note**: The observations above do not include Grant IDs `PAC` and `REC` from the platform.
+
+---
+
+# Grant Wise Budgetary Provisions
+
+```{r}
+## Create the table data
+grant_wise_summary <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
+    group_by(fiscal_year, grant_no, dep_name) %>%
+    summarise(budget = sum(total_budget_provision)) %>%
+    pivot_wider(names_from = fiscal_year, values_from = budget)
+
+## Print the table
+datatable(grant_wise_summary, 
+          colnames = c("Grant #", "Department Name", "2017-2018", "2018-2019", "2019-2020", "2020-2021"),
+          options = list(pageLength = 3)) %>%
+    formatCurrency(c("2017-2018", "2018-2019", "2019-2020", "2020-2021"), "₹")
+```
+
+---
+
+# Findings (2)
+
+#### Observations made about the Grants constituting the fiscal daata for the state of Uttar Pradesh.
+
+The followings Grants were identified to be associated with the **Department of Education** .
+
+| Grant # | Department (Hindi)| Department (English) |
+|:--:|--|--|
+| `071` | शिक्षा विभाग (प्राथमिक शिक्षा) | Department of Education (Primary Education) |
+| `072` | शिक्षा विभाग (माध्यमिक शिक्षा) | Department of Education (Secondary Education) |
+| `073` | शिक्षा विभाग (उच्च शिक्षा) | Department of Education (Higher Education) |
+| `075` | शिक्षा विभाग (राज्य शैक्षिक अनुसंधान एवं प्रशिक्षण पिरषद्) | Department of Education (State Council for Educational Research and Training) |
+
+---
+
+class: inverse center middle
+
+# Education Related Grants
+
+---
+
+# Education Related Grants
+
+```{r}
+# Create the education grants data
+education_budgets <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
+    filter(grant_no %in% c("071", "072", "073", "075")) %>%
+    group_by(fiscal_year, grant_no, dep_name) %>%
+    summarise(`Total Budget` = sum(total_budget_provision)) %>%
+    rename(`Fiscal Year` = fiscal_year, `Grant #` = grant_no)
+
+# Plot the data
+ggplotly(ggplot(education_budgets, aes(x = `Fiscal Year`, y = `Total Budget`, fill = `Grant #`)) +
+    geom_bar(stat = "identity") +
+    labs(title = "Uttar Pradesh Education Department Fiscal Trends", x = "", y = "") +
+    theme_minimal() + theme(axis.text.y = element_blank(), legend.position = "bottom")) %>%
+    layout(legend = list(
+        orientation = "h",
+        x = 0, y = -0.1)
+    )
+```
+
+---
+
+# Findings (3)
+
+#### Observations made in the overall state budget trends in **FY 2020-21** over last 4 FYs.
+
+-----
+
+- The education budget allocation primarily flows through the Department of Education, with Primary Education grant amounting to `₹55,065 crore` and Secondary Education grant amounting to `₹12,988 crore` budget estimated for  **FY 2020–21**.
+
+- The Primary Education (`071`) accounts for anything between `~75-80%` of Department of Education related Budget Provisions.
+
+- Secondary Education (`072`) accounts for `~15%` and SCERT (`075`) accounts for `~5%` of Budgetary Provisions.
+
+-----
+
+> **Note**: As the project aims to track the spending towards **Girl Child Education**, only children below the age of `18` are considered in scope. Hence, Grant # `073` will be removed from the scope from the scope.
+
+---
+
+# Education Grants Breakdown
+
+```{r}
+primary_ed <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision),
+           progressive_allotment = as.double(progressive_allotment),
+           actual_expenditure = as.double(total_expenditure_in_month)) %>%
+    filter(grant_no %in% c("071", "072", "075")) %>%
+    group_by(fiscal_year, grant_no, major_head_code, major_head_desc) %>%
+    summarise(`Total Budget` = sum(total_budget_provision),
+              `Total Allotment` = sum(progressive_allotment),
+              `Total Expenditure` = sum(actual_expenditure)) %>%
+    pivot_longer(cols = starts_with("Total"), names_to = "metric", values_to = "value") %>%
+    rename(`Fiscal Year` = fiscal_year, 
+           `Major Head Code` = major_head_code, 
+           `Major Head Desc` = major_head_desc)
+
+# Plot the data
+ggplotly(ggplot(primary_ed, aes(x = reorder(`Major Head Code`, value), y = value, fill = `Fiscal Year`)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(title = "Uttar Pradesh Yearly Fiscal Trends", x = "", y = "") +
+    facet_wrap(~ grant_no, scales = "free_x") +
+    theme_minimal() + theme(axis.text.x = element_blank(), legend.position = "bottom") +
+    coord_flip()) %>%
+    layout(legend = list(
+        orientation = "h",
+        x = 0, y = -0.15
+        )
+    )
+```
+
+---
+
+# Findings (4)
+
+Under the Grant #s shortlisted above, `071`, `072` and `075` the following **Major Heads** were available.
+
+| Major Head Code | Major Head Description (Hindi)| Major Head Description (English) |
+|:--:|--|--|
+| `2013` | मंत्रि परिषद् | Council of Ministers |
+| `2071` | पेंशन तथा अन्य सेवा निवृत्ति हित लाभ | Pension and Other Retirement Benefits |
+| `2202` | सामान्य शिक्षा | General Education |
+| `2204` | खेल कूद तथा युवा सेवायें | Sports and Youth Services |
+| `2205` | कला एवं संस्कृति | Arts and Culture |
+| `4202` | शिक्षा,खेलकूद,कला तथा संस्कृति पर पूंजीगत परिव्यय | Capital outlay on Education, Sports, Arts and Culture |
+| `8009` | `-` | `-` |
+
+> A large proportion of all the funds related to Education in Uttar Pradesh flows through the **General Education** (`2202`) Major Head across all shortlisted Grants.
+
+---
+
+class: inverse center middle
+
+# Education Related Major Heads
+
+---
+
+# `2202` - General Education
+
+#### Major Head `2202` spread across grants even outside the Department of Education.
+
+```{r}
+gen_ed <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
+    filter(major_head_code == "2202" & !(grant_no %in% c("PAC", "REC"))) %>%
+    group_by(fiscal_year, grant_no, dep_name) %>%
+    summarise(`Total Budget` = sum(total_budget_provision)) %>%
+    rename(`Fiscal Year` = fiscal_year, 
+           `Grant #` = grant_no, 
+           `Department Name` = dep_name) %>%
+    pivot_wider(names_from = `Fiscal Year`, values_from = `Total Budget`)
+
+## Print the table
+datatable(gen_ed, 
+          colnames = c("Grant #", "Department Name", "2017-2018", "2018-2019", "2019-2020", "2020-2021"),
+          options = list(pageLength = 3)) %>%
+    formatCurrency(c("2017-2018", "2018-2019", "2019-2020", "2020-2021"), "₹")
+```
+
+---
+
+# Findings (5)
+
+#### Obsevations around Major Accounting Heads for education.
+
+-----
+
+- Major Head `2202` - **General Education** can be tracked across 10 different Grants for the state of Utar Pradesh.
+
+- The General Education expenditure also flows through Grants of **Language Department**, **Department of Social Welfare** and **Administrative Reforms Department**
+
+- A deeper analysis to create a **definition of Education related expenditure** is required.
+
+-----
+
+> **Note**: The **Controller General of Accounts, Department of Expenditure, Ministry of Finace** mandates the use of same Major and Minor Heads of Accounts across all Union and State expenditures. Hence it becomes critical to track the relevant Major Heads accross all grants for the state of Uttar Pradesh. The same methodology can be extended to other states too. You can find the master list of accounting heads [here](http://cga.nic.in/DownloadPDF.aspx?filenameid=1537).
+
+---
+
+# Education Related Major Heads
+
+#### Identifying the **Education related Major Heads** that might be related to Girl Child Education.
+
+```{r}
+ed_major <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
+    filter(major_head_code %in% c("2013", "2071", "2202", "2204", "2205", "4202", "8009") & 
+             !(grant_no %in% c("PAC", "REC"))) %>%
+    group_by(fiscal_year, grant_no, dep_name, major_head_code, major_head_desc) %>%
+    summarise(`Total Budget` = sum(total_budget_provision)) %>%
+    rename(`Fiscal Year` = fiscal_year, 
+           `Grant #` = grant_no, 
+           `Department Name` = dep_name,
+           `Major Head Code` = major_head_code,
+           `Major Head Description` = major_head_desc) %>%
+    pivot_wider(names_from = `Fiscal Year`, values_from = `Total Budget`)
+
+## Print the table
+datatable(ed_major, 
+          colnames = c("Grant #", "Department Name", "Major Head Code", "Major Head Description",
+                       "2017-2018", "2018-2019", "2019-2020", "2020-2021"),
+          options = list(pageLength = 3)) %>%
+    formatCurrency(c("2017-2018", "2018-2019", "2019-2020", "2020-2021"), "₹")
+```
+
+
+
+---
+
+# Next Steps
+
+- Diving deeper into accounting heads beyond Major Head.
+
+- Analysis of Spending data for the corresponding budgets.
+
+- Focusing on two aspirational districts in Uttar Pradesh.
+

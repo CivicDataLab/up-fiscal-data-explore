@@ -165,7 +165,8 @@ grant_major_head_master <- major_head_master_all %>%
     left_join(grant_master_all,
               by = c("fiscal_year", "hierarchy" = "grant_no"),
               suffix = c("", "_2")) %>%
-    select(!ends_with("_2"))
+    select(!ends_with("_2")) %>%
+    rename(grant_no = hierarchy)
 
 # Store Cleaned Files
 message(">> Storing the transformed files.")
