@@ -79,7 +79,7 @@ pfms_master <- read_csv(here("data", step3, section7,
 
 ```{r xaringan-themer, include = FALSE, warning = FALSE}
 library(xaringanthemer)
-style_mono_accent(base_color = "#43418A")
+style_mono_accent(base_color = "#4b86be")
 ```
 
 # Background
@@ -449,7 +449,7 @@ class: inverse center middle
 
 ---
 
-# Education Related Fiscal Data Change
+# Fiscal Data Trends
 
 #### Revised budget numbers for in-scope **Uttar Pradesh education budgets**
 
@@ -485,17 +485,47 @@ formattable(education_budgets_change,
             list(`% Change` = color_text("light green", "darkgreen")))
 ```
 
-> `~10%` increase in in-scope budget for Education related in heads in Uttar Pradesh across all years.
+> `~10%` increase in in-scope budget for Education related in heads in Uttar Pradesh across all fiscal years.
 
 ---
 
-# Next Steps
+# Schemes Trends
+
+#### Revised budget numbers for in-scope schemes for **Uttar Pradesh education budgets**
+
+```{r}
+ed_schemes <- pfms_master %>% 
+    mutate(budget = as.numeric(budget),
+           release = as.numeric(release),
+           expenditure = as.numeric(expenditure),
+           major_head_code = str_extract(head, pattern = "\\d{4}")) %>%
+    filter(central_scheme_code %in% c("3667", "9164", "9165", "9166", 
+                                      "9169", "9281", "9200")) %>%
+    group_by(fiscal_year, scheme_name) %>%
+    summarise(budget = sum(budget)) %>%
+    pivot_wider(names_from = fiscal_year, values_from = budget)
+
+
+## Print the table
+datatable(ed_schemes, 
+          colnames = c("Scheme Name", "2017-2018", "2018-2019", "2019-2020", "2020-2021"),
+          options = list(pageLength = 3)) %>%
+    formatCurrency(c("2017-2018", "2018-2019", "2019-2020", "2020-2021"), "₹")
+```
+
+---
+
+# Summary
+
+## Key Findings
+
+- XX
+- YY
+- ZZ
+
+## Next Steps
 
 - Diving deeper into accounting heads beyond Major Head.
-
-- Analysis of Spending data for the corresponding budgets.
-
+- Analysis of expenditure data for the corresponding budgets.
 - Focusing on two aspirational districts in Uttar Pradesh.
-
 - Identifying the Girl Child related expenditure.
-
