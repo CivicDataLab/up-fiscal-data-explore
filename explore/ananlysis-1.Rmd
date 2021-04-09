@@ -36,6 +36,7 @@ library(tidyverse)          # Data Processing
 library(DT)                 # File System Operations
 library(scales)             # Format numbers on charts
 library(plotly)             # Interactive visualisations
+library(formattable)        # Beautiful HTML Tables
 
 # Set Processing Step Variables
 message("Setup all stages of the process.")
@@ -62,11 +63,18 @@ section7 <- "pfms_expenditure_detail"
 # Create folder to process files
 dir.create(here("data", step4), showWarnings = FALSE)
 
-# Grant Major Head
+# Grant Major Head Master
 grant_major_head_master <- read_csv(here("data", step3, section4, 
                                          "grant_major_head_master.csv"), 
                                     col_types = cols(.default = "c"))
 
+## Education Definition Master
+ed_def_master <- readxl::read_excel(here("data", "extra", "ed_def.xlsx"))
+
+## PFMS Master
+pfms_master <- read_csv(here("data", step3, section7, 
+                      "pfms_master.csv"), 
+                 col_types = cols(.default = "c"))
 ```
 
 ```{r xaringan-themer, include = FALSE, warning = FALSE}
@@ -81,6 +89,22 @@ style_mono_accent(base_color = "#43418A")
 The **project’s objective** is to examine and highlight the trend of financing for child education with specific focus on girls’ education in the state of Uttar Pradesh. The project also intends to build the collective voices of local CSOs to be able to advocate for greater budget transparency in allocation and expenditure for education related programmes by putting the budget data in public domain in simplified forms. The outcomes of the proposed project is likely to improve the implementation of education related schemes in the selected states thereby benefiting all the children who are part of the schooling system.
 
 To achieve the same, we are procuring data from the [Koshvani](http://koshvani.up.nic.in/) platform, **FY 2017-18 onwards**. Koshvani is Uttar Pradesh’s financial activities digital platform containing up to date information about the state budget and expenditure down to a DDO level. We are using this data to create a composite definition of education expenditure for the state of Uttar Pradesh and track the progress over the years. You can follow our progress on the work here.
+
+---
+
+# Contents
+
+* [Uttar Pradesh Fiscal Data Overview](#4)
+
+* [Education Related Grants](#9)
+
+* [Fiscal Data Overview](#5)
+
+* [Fiscal Data Overview](#5)
+
+* [Fiscal Data Overview](#5)
+
+* [Fiscal Data Overview](#5)
 
 ---
 
@@ -175,7 +199,7 @@ The followings Grants were identified to be associated with the **Department of 
 
 class: inverse center middle
 
-# Education Related Grants
+# Grants Overview
 
 ---
 
@@ -274,7 +298,7 @@ Under the Grant #s shortlisted above, `071`, `072` and `075` the following **Maj
 
 class: inverse center middle
 
-# Education Related Major Heads
+# Major Heads and Schemes
 
 ---
 
@@ -328,7 +352,7 @@ datatable(gen_ed,
 ed_major <- grant_major_head_master %>% 
     mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
     filter(major_head_code %in% c("2013", "2071", "2202", "2204", "2205", "4202", "8009") & 
-             !(grant_no %in% c("PAC", "REC"))) %>%
+             !(grant_no %in% c("PAC", "REC")) & fiscal_year == "2020-2021") %>%
     group_by(fiscal_year, grant_no, dep_name, major_head_code, major_head_desc) %>%
     summarise(`Total Budget` = sum(total_budget_provision)) %>%
     rename(`Fiscal Year` = fiscal_year, 
@@ -336,17 +360,132 @@ ed_major <- grant_major_head_master %>%
            `Department Name` = dep_name,
            `Major Head Code` = major_head_code,
            `Major Head Description` = major_head_desc) %>%
-    pivot_wider(names_from = `Fiscal Year`, values_from = `Total Budget`)
+    pivot_wider(names_from = `Fiscal Year`, values_from = `Total Budget`) %>%
+    mutate(Key = paste(`Grant #`, `Major Head Code`, sep = "-")) %>%
+    left_join(ed_def_master, by = "Key", suffix = c("", ".key")) %>%
+    filter(Scope == "Y") %>%
+    select("Grant #", "Department Name", "Major Head Code", "Major Head Description", "2020-2021")
 
 ## Print the table
 datatable(ed_major, 
           colnames = c("Grant #", "Department Name", "Major Head Code", "Major Head Description",
-                       "2017-2018", "2018-2019", "2019-2020", "2020-2021"),
+                       "2020-2021"),
           options = list(pageLength = 3)) %>%
-    formatCurrency(c("2017-2018", "2018-2019", "2019-2020", "2020-2021"), "₹")
+    formatCurrency(c("2020-2021"), "₹")
 ```
 
+---
 
+# Findings (6)
+
+#### Obsevations around scope of Education Related accouting heads.
+
+-----
+
+- **30 combinations of Major Heads and Grant #s** considered in scope across 7 Major Head Codes.
+
+- Education related fiscal data identified across Department of Education, Housing Department, Administrative Reforms Department and more.
+
+- Higher Education and other professional and technical education departments excluded from the scope.
+
+-----
+
+> **Note**: The complete documentation of the definition can be found [here](https://github.com/CivicDataLab/up-fiscal-data/blob/main/data-scoping/education-definition.md).
+
+---
+
+# Education Related Schemes
+
+```{r}
+## Create the table data
+ed_schemes <- pfms_master %>% 
+    mutate(budget = as.numeric(budget),
+           release = as.numeric(release),
+           expenditure = as.numeric(expenditure),
+           major_head_code = str_extract(head, pattern = "\\d{4}")) %>%
+    filter(fiscal_year == "2020-2021" &
+      central_scheme_code %in% c("3667", "9164", "9165", "9166", 
+                                      "9169", "9281", "9200")) %>%
+    group_by(fiscal_year, central_scheme_code, 
+             state_scheme_code, scheme_name) %>%
+    summarise(budget = sum(budget)) %>%
+    pivot_wider(names_from = fiscal_year, values_from = budget)
+
+## Print the table
+datatable(ed_schemes, 
+          colnames = c("Central Scheme Code", "State Scheme Code", 
+                       "Scheme Name", "2020-2021"),
+          options = list(pageLength = 3)) %>%
+    formatCurrency(c("2020-2021"), "₹")
+```
+
+---
+
+# Findings (7)
+
+#### Observations regarding education related schemes in Uttar Pradesh.
+
+-----
+
+- 7 Key Shcemes Identified for Education Related expenditure.
+
+- These include:
+  - **Samgra Shiksha (Elementary Education)**
+  - **SARVA SHIKSHA ABHIYAN**
+  - **NATIONAL PROGRAMME OF MID DAY MEALS IN SCHOOLS**
+  - **RASHTRIYA MADHYAMIK SHIKSHA ABHIYAN**
+  - **Education Scheme for Madrasas and Minorities**
+  - **Scheme for Adolescent Girls**
+
+-----
+
+> These schemes also have accounting codes related to them and all of them fall under Major Head `2202` - General Education and `4202` - Capital outlay on Education, Sports, Arts and Culturewhich were identified as in-scope Major Head Codes earlier.
+
+---
+
+class: inverse center middle
+
+# Revised Scope of Education
+
+---
+
+# Education Related Fiscal Data Change
+
+#### Revised budget numbers for in-scope **Uttar Pradesh education budgets**
+
+```{r}
+# Create the education grants data
+education_budgets_before <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision)) %>%
+    filter(grant_no %in% c("071", "072", "075")) %>%
+    group_by(fiscal_year) %>%
+    summarise(`Total Budget` = sum(total_budget_provision))
+
+education_budgets_after <- grant_major_head_master %>% 
+    mutate(total_budget_provision = as.numeric(total_budget_provision),
+           Key = paste(grant_no, major_head_code, sep = "-")) %>%
+    left_join(ed_def_master, by = "Key", suffix = c("", ".key")) %>%
+    filter(Scope == "Y") %>%
+    group_by(fiscal_year) %>%
+    summarise(`Total Budget` = sum(total_budget_provision))
+
+# Join the tables
+education_budgets_change <- education_budgets_before %>% 
+    left_join(education_budgets_after, 
+              by = "fiscal_year",
+              suffix = c(" - Before", " - After")) %>%
+    mutate(`Total Budget - Before` = currency(`Total Budget - Before`, symbol = "₹"),
+           `Total Budget - After` = currency(`Total Budget - After`,  symbol = "₹"),
+           `Abs. Change` = currency((`Total Budget - After` - `Total Budget - Before`), symbol = "₹"),
+           `% Change` = percent((`Total Budget - After` - `Total Budget - Before`)/`Total Budget - Before`)) %>%
+    rename(`Fiscal Year` = fiscal_year)
+
+# Print formatted table
+formattable(education_budgets_change,
+            list(`% Change` = color_text("light green", "darkgreen")))
+```
+
+> `~10%` increase in in-scope budget for Education related in heads in Uttar Pradesh across all years.
 
 ---
 
@@ -357,4 +496,6 @@ datatable(ed_major,
 - Analysis of Spending data for the corresponding budgets.
 
 - Focusing on two aspirational districts in Uttar Pradesh.
+
+- Identifying the Girl Child related expenditure.
 
