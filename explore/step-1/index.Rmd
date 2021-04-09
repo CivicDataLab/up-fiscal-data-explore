@@ -96,15 +96,13 @@ To achieve the same, we are procuring data from the [Koshvani](http://koshvani.u
 
 * [Uttar Pradesh Fiscal Data Overview](#4)
 
-* [Education Related Grants](#9)
+* [Demand of Grants Overview](#9)
 
-* [Fiscal Data Overview](#5)
+* [Major Head and Schemes](#14)
 
-* [Fiscal Data Overview](#5)
+* [Revised Scope of Education](#21)
 
-* [Fiscal Data Overview](#5)
-
-* [Fiscal Data Overview](#5)
+* [Key Findings and Next Steps](#24)
 
 ---
 
@@ -199,7 +197,7 @@ The followings Grants were identified to be associated with the **Department of 
 
 class: inverse center middle
 
-# Grants Overview
+# Demand for Grants Overview
 
 ---
 
@@ -519,9 +517,9 @@ datatable(ed_schemes,
 
 ## Key Findings
 
-- XX
-- YY
-- ZZ
+- Drop in the allocation and expenditure of funds during **FY 2020-21**. 
+- Grants and Major Heads pertaining to child education identified.
+- Revised scope of Education related fiscal data leading to `~10%` increase in in-scope funds.
 
 ## Next Steps
 
