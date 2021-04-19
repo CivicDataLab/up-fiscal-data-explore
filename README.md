@@ -4,21 +4,24 @@ This repository is intended for scripts and findings related to the exploration 
 
 ## Table of Contents
 
-[Background](https://github.com/CivicDataLab/up-fiscal-data-explore#background)
+[Background](#background)
 
-[Methodology](https://github.com/CivicDataLab/up-fiscal-data-explore#methodology)
+[Methodology](#methodology)
+- Basic Setup
+- Pre-processing
+- Exploratory Analysis
 
-[Contributions](https://github.com/CivicDataLab/up-fiscal-data-explore#contributions)
+[Contributions](#contributions)
 
-[Repo Structure](https://github.com/CivicDataLab/up-fiscal-data-explore#repo-structure)
+[Repo Structure](#repo-structure)
 
-[License](https://github.com/CivicDataLab/up-fiscal-data-explore#license)
+[License](#license)
 
 ## Background
 
 This repository is an extension on the project to analyse and explore the Uttar Pradesh fiscal data extracted from the [Koshvani](http://koshvani.up.nic.in/) platform. The primary focus of the project is education related spending analysis.
 
-Check out the linked repositories for more details around [data scoping](https://github.com/CivicDataLab/up-fiscal-data) and [data mining](https://github.com/CivicDataLab/up-fiscal-data).
+Check out the linked repositories for more details around [data scoping](https://github.com/CivicDataLab/up-fiscal-data) and [data mining](https://github.com/CivicDataLab/up-fiscal-data-backend).
 
 ## Methodology
 
@@ -35,7 +38,9 @@ The `tidyverse` and supporting packages from `R` are employed to conduct this ex
 
 Guidelines to execute the script.
 
-**Clone the Repository**
+### Basic Setup
+
+#### Clone the Repository
 
 ```
 git clone https://github.com/CivicDataLab/up-fiscal-data-explore.git
@@ -47,10 +52,17 @@ git clone https://github.com/CivicDataLab/up-fiscal-data-explore.git
 << TBD >>
 ```
 
+### Pre-processing
+
 #### Run the master script
 
 - Open the `up-fiscal-data-explore.Rproj`
 - Source the `scripts/00-master.R` script
+
+### Exploratory Ananlysis
+
+- `explore` folder contains `.Rmd` files and outputs for various steps of the analyses.
+- You can find the final analyses here: [Step 1](https://up-girl-ed-1.netlify.app/#1) / [Step 2]() / [Step 3]()
 
 ## Contributions
 
@@ -61,6 +73,9 @@ You can refer to the [contributing guidelines](https://github.com/CivicDataLab/u
     root
     └── contribute/
     └── data/
+    └── explore/
+        └── step-1/
+        └── ..
     └── scripts/
     └── LICENSE.md
     └── README.md
